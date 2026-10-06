@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare checkout queues, shopper search costs, and express lanes in paired economic simulations.">
+  <title>Supermarket — Friedman Economic Games</title>
+  <link rel="icon" href="assets/cob-seal.png">
+  <link rel="stylesheet" href="assets/cob-brand.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="cob-brand">
+    <div class="cob-brand__inner">
+      <img class="cob-brand__seal" src="assets/cob-seal.png" srcset="assets/cob-seal@2x.png 2x" width="56" height="56" alt="West Texas A&amp;M University · Paul and Virginia Engler College of Business seal">
+      <div class="cob-brand__wordmark">
+        <span class="cob-brand__university">West Texas A&amp;M University</span>
+        <span class="cob-brand__college">Paul and Virginia Engler College of Business</span>
+      </div>
+    </div>
+    <div class="cob-brand__rule" aria-hidden="true"></div>
+  </header>
+  <main id="main" tabindex="-1">
+    <p class="eyebrow">Friedman Economic Games · Proposal 8</p>
+    <h1>Supermarket</h1>
+    <p class="intro">Explore queue equilibria, negative feedback, search costs, and imperfect information.</p>
+    <p class="notice"><strong>Review prototype · v1.</strong> Compare the same shoppers in two stores. The baseline uses nearby people counts; the experiment can pay for basket information or reserve an express lane. Arrivals stay fixed: waiting costs do not change demand in this version.</p>
+    <section aria-labelledby="instructions-heading">
+      <h2 id="instructions-heading">Try a comparison</h2>
+      <ol>
+        <li>Choose a scenario or edit the experiment settings and apply them.</li>
+        <li>Step through time, Run, or Finish comparison. Both stores receive the same arrivals and baskets.</li>
+        <li>Compare <strong>total exit time</strong>, including search and travel. Let every shopper finish before comparing final averages.</li>
+      </ol>
+      <p>Time is measured in abstract units, not minutes. Each basket takes its number of items plus three units to check out. Shoppers choose once and stay in their queue.</p>
+    </section>
+    <section class="card" aria-labelledby="settings-heading">
+      <h2 id="settings-heading">Set up the experiment</h2>
+      <div class="buttons" id="presets" aria-label="Comparison scenarios">
+        <button type="button" data-preset="balance">Queue balancing</button>
+        <button type="button" data-preset="cheap">Cheap information</button>
+        <button type="button" data-preset="costly">Costly information</button>
+        <button type="button" data-preset="express">Express checkout</button>
+      </div>
+      <form id="settings" novalidate>
+        <div class="fields">
+          <div><label for="seed">Random seed</label><input id="seed" type="number" min="1" max="2147483647" step="1" aria-describedby="error-seed"><span class="error" id="error-seed"></span></div>
+          <div><label for="arrival">Arrival chance per unit (%)</label><input id="arrival" type="number" min="0" max="30" step="1" aria-describedby="error-arrival"><span class="error" id="error-arrival"></span></div>
+          <div><label for="horizon">Arrival duration (units)</label><input id="horizon" type="number" min="100" max="1200" step="100" aria-describedby="horizon-help error-horizon"><span class="error" id="error-horizon"></span></div>
+          <div><label for="share">Experiment searchers (%)</label><input id="share" type="number" min="0" max="100" step="1" aria-describedby="error-share"><span class="error" id="error-share"></span></div>
+          <div><label for="depth">Lanes inspected by searchers</label><input id="depth" type="number" min="2" max="4" step="1" aria-describedby="error-depth"><span class="error" id="error-depth"></span></div>
+          <div><label for="cost">Search cost per lane (units)</label><input id="cost" type="number" min="0" max="8" step="1" aria-describedby="error-cost"><span class="error" id="error-cost"></span></div>
+          <div><label for="cutoff">Express basket limit (items)</label><input id="cutoff" type="number" min="1" max="30" step="1" aria-describedby="cutoff-help error-cutoff"><span class="error" id="error-cutoff"></span></div>
+          <div><label class="check-label" for="express"><input id="express" type="checkbox" aria-describedby="express-help"> Reserve lane 4 for express</label><p id="express-help" class="help">Only the experiment reserves a lane. Larger baskets use lanes 1–3.</p><span class="error" id="error-express"></span></div>
+        </div>
+        <p id="horizon-help" class="help">After this duration, arrivals stop and the comparison continues until both stores are empty.</p>
+        <p id="cutoff-help" class="help">Both stores report cohorts using this basket limit, even when express is off.</p>
+        <div class="buttons"><button type="submit" class="primary">Apply and restart</button><button type="button" id="restart">Restart</button><button type="button" id="defaults">Restore defaults</button></div>
+        <p id="draft-status" class="status"></p>
+      </form>
+    </section>
+    <section class="card" aria-labelledby="playback-heading">
+      <h2 id="playback-heading">Follow the shoppers</h2>
+      <div class="buttons"><button type="button" id="step">Step one unit</button><button type="button" id="play" class="primary">Run</button><button type="button" id="finish">Finish comparison</button></div>
+      <p id="run-status" class="status"></p>
+      <p id="applied-settings" class="help"></p>
+      <p class="help">Run advances ten units every 700 milliseconds. Pause stops Run or Finish comparison. Motion is a schematic; the tables carry the same results.</p>
+    </section>
+    <section aria-labelledby="stores-heading">
+      <h2 id="stores-heading">The two stores</h2>
+      <p>Each card shows the basket in service and up to six waiting baskets, followed by the remaining count. A workload is the time needed to finish the current line if no one else joins.</p>
+      <div class="stores" id="stores"></div>
+    </section>
+    <section class="card" aria-labelledby="results-heading">
+      <h2 id="results-heading">Compare total exit time</h2>
+      <p id="comparison-summary" class="status"></p>
+      <p>All averages below are per completed shopper. <strong>Search + travel + queue wait + service = total exit time.</strong> During playback, unfinished shoppers are excluded and the averages are provisional.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Store and shopper cohort averages">
+        <table id="summary-table"><caption>Mean time components, in abstract time units</caption><thead><tr><th scope="col">Store / cohort</th><th scope="col">Completed</th><th scope="col">Search</th><th scope="col">Travel</th><th scope="col">Queue wait</th><th scope="col">Service</th><th scope="col">Total exit</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="history-heading">
+      <h2 id="history-heading">Lane workloads over time</h2>
+      <p>Each line is one lane. Numbered labels and different line patterns supplement color. Samples are recorded every ten units, when arrivals stop, and when a store drains.</p>
+      <div class="stores" id="histories"></div>
+      <details id="history-details"><summary>Read the workload history table</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Sampled lane workload history"><table id="history-table"><caption>Recorded workload samples (units)</caption><thead><tr><th scope="col">Store / tick</th><th scope="col">Lane 1</th><th scope="col">Lane 2</th><th scope="col">Lane 3</th><th scope="col">Lane 4</th></tr></thead><tbody></tbody></table></div></details>
+    </section>
+    <section class="card" aria-labelledby="shoppers-heading">
+      <h2 id="shoppers-heading">Individual shopper evidence</h2>
+      <p>The same shopper ID, basket, source, and arrival appear in both stores. Searchers forecast from current basket workloads; they cannot see later arrivals. Non-searchers compare only two nearby people counts.</p>
+      <div class="stores" id="decisions"></div>
+      <details id="shopper-details"><summary>Read individual shopper times and current phases</summary><div class="table-scroll" tabindex="0" role="region" aria-label="Individual shopper timing"><table id="shopper-table"><caption>Admitted shoppers: departure and total exit appear only after completion. Search and travel are planned durations until completed.</caption><thead><tr><th scope="col">Store / ID</th><th scope="col">Items</th><th scope="col">Source</th><th scope="col">Searcher</th><th scope="col">Lane</th><th scope="col">Phase</th><th scope="col">Arrival</th><th scope="col">Join</th><th scope="col">Start service</th><th scope="col">Departure</th><th scope="col">Search</th><th scope="col">Travel</th><th scope="col">Queue wait</th><th scope="col">Service</th><th scope="col">Total exit</th></tr></thead><tbody></tbody></table></div></details>
+    </section>
+    <section class="card" aria-labelledby="prompts-heading">
+      <h2 id="prompts-heading">Optional guided experiments</h2>
+      <p>Each question loads its own fixed scenario. Finish the comparison, choose an answer, and check. These examples do not establish a universal best policy.</p>
+      <div id="prompts" class="buttons"></div>
+      <fieldset id="answer-fieldset" hidden><legend id="prompt-question"></legend><div id="answers"></div></fieldset>
+      <button type="button" id="check" disabled>Check answer</button>
+      <p id="prompt-feedback" class="status" role="status"></p>
+    </section>
+    <section aria-labelledby="resources-heading">
+      <h2 id="resources-heading">Project notes</h2>
+      <ul class="resources">
+        <li><a href="README.md">Project overview</a></li>
+        <li><a href="DESIGN.md">Design brief</a></li>
+        <li><a href="SPECIFICATION.md">V1 specification</a></li>
+        <li><a href="http://daviddfriedman.com/Living_Paper/Program_Descriptions/program_descriptions.htm">Original program descriptions</a></li>
+      </ul>
+      <p>Code is open source under the MIT License. The full accessibility audit of this activity is still to be completed before teaching release.</p>
+    </section>
+  </main>
+  <footer>
+    <p>Economic concepts: David Friedman. Development: Eric McKee.</p>
+    <p>Paul and Virginia Engler College of Business · West Texas A&amp;M University</p>
+  </footer>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+  <script src="js/model.js"></script>
+  <script src="js/view.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
